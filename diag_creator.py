@@ -12,19 +12,28 @@ def random_name():
     return ''.join([i for i in random.choices(string.ascii_letters, k=35)])
 
 
-def diagram_creator(user_role, status, allowed_actions, allowed_blocks):
-    # Дать диаграмме случайное имя. Show=False отключает автоматическое открытие схемы после создания
+def create_diagram(*args, p_direction='TB', p_outformat='png'):
+    user_role = args[0][0]  # Уровень доступа пользователя
+    status = args[0][1]  # Статус ИО
+    allowed_actions = args[0][2]
+    allowed_blocks = args[0][3]
 
-    with Diagram(f"{random_name()}", show=False):
+    '''
+    Диаграмма каждый раз получает имя из случайных символов
+    show (аргумент, отвечающий за открытие созданной схемы)
+    outformat (аргумент, отвечающий за то, в каком формате будет сохранена схема)
+    direction (метод, по которому будет создаваться схема)
+    LR (слева-направо), RL (справа-налево), TB(сверху-вниз), BT(снизу-вверх)'''
+    with Diagram(f"{str(user_role) + '_' + random_name()}", show=False, direction=p_direction, outformat=p_outformat):
         d_user = create_diag_user(user_role, status)
         actions_balancer = ELB('Возможные действия')
         blocks_balancer = ELB('Доступные блоки')
 
         with Cluster('Доступные действия'):
-            actions_group = create_diag_actions(allowed_actions)
+            actions_group = create_diag_actions(allowed_actions)  # список объектов на создание
 
         with Cluster('Доступные блоки'):
-            blocks_group = create_diag_allowed_blocks(allowed_blocks)
+            blocks_group = create_diag_allowed_blocks(allowed_blocks)  # список объектов на создание
 
         d_user >> actions_balancer
         d_user >> blocks_balancer
@@ -33,7 +42,7 @@ def diagram_creator(user_role, status, allowed_actions, allowed_blocks):
 
 
 def create_diag_user(user, status):
-    complete_user = User(f'Пользователь: {user} \n'
+    complete_user = User(f'Уровень пользователя: {user} \n'
                          f'Статус: {status}')
 
     return complete_user
