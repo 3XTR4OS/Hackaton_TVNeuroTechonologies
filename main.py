@@ -45,8 +45,6 @@ def params_handler(row):
 
 with open(file_path, 'r+', encoding='utf-8') as file:
     file = json.load(file)
-
-    # diag_creator.create_diagram(params_handler(file[-1]))
+    
     for row in file:
-        # print(params_handler(row))
         diag_creator.create_diagram(params_handler(row), p_outformat='png')
