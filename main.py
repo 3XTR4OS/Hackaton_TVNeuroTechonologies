@@ -19,22 +19,22 @@ blocks = {
 
 
 def params_handler(row):
-    # user_role - права пользователя
+    # user_role - user rights
     user_role = row['role']
 
-    # state - статус ИО
+    # state - info object status
     if row['state'] is None:
         state = 'Пуст'
     else:
         state = states[row['state']['status']]
 
-    # allowed_actions - доступные действия
+    # allowed_actions
     if len(row['allowedActions']) == 0:
         allowed_actions = 'Пуст'
     else:
         allowed_actions = [i['name'] for i in row['allowedActions']]
 
-    # allowedBlocks - доступные к отображению блоки
+    # allowedBlocks - blocks available for display
     if len(row['allowedBlocks']) == 0:
         allowed_blocks = 'Пуст'
     else:
