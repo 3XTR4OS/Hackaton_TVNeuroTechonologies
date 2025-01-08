@@ -11,7 +11,6 @@ class DataDiagrammer:
     def __init__(self):
         self.save_folder: str = 'results_storage/'
         self.img_output_format: str = 'png'
-        # self.graph_attrs: dict = {'label': ''}  # deleting filename from output image
 
     # Assigns a random name to the schema
     def generate_random_name(self, symbols_count=10) -> str:
@@ -57,17 +56,19 @@ class DataDiagrammer:
         return user_node
 
     def __create_allowed_actions_node(self, actions: list) -> list[CustomerPremises | Encryption]:
+        """Adding all list elements inside cluster (with Cluster()...)"""
         if actions:
-            actions_node = [CustomerPremises(i) for i in actions]
+            allowed_actions = [CustomerPremises(action) for action in actions]
         else:
-            actions_node = [Encryption('Нет')]
+            allowed_actions = [Encryption('Нет')]
 
-        return actions_node
+        return allowed_actions
 
-    def __create_allowed_blocks_node(self, allowed_list: list) -> list[CustomerPremises | Encryption]:
-        if allowed_list:
-            actions_group = [CustomerPremises(i) for i in allowed_list]
+    def __create_allowed_blocks_node(self, allowed_blocks: list) -> list[CustomerPremises | Encryption]:
+        """Adding all list elements inside cluster (with Cluster()...)"""
+        if allowed_blocks:
+            allowed_blocks = [CustomerPremises(block) for block in allowed_blocks]
         else:
-            actions_group = [Encryption('Нет')]
+            allowed_blocks = [Encryption('Нет')]
 
-        return actions_group
+        return allowed_blocks
