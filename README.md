@@ -1,8 +1,11 @@
 # Hackaton_TVNeuroTechonologies
-Чтобы запустить генерацию схем нужно запустить код из main.py
+Программа для наглядной визуализации данных. На вход получает json n'го формата, а на выходе составляет и сохраняет в .png формате диаграммы.  
+Для запуска генерации диаграмм нужно запустить main.py  
+* Для работы программы нужно установить библиотеку diagrams  
+> pip install diagrams  
+* Также вам необходим Graphviz. Установить его можно по следующей ссылке↓  
+> https://graphviz.org/download/  
+[!] Если после установки и добавления graphviz в PATH программа отказывается работать, перезагрузите машину.
 
-Для работы программы нужно установить библиотеку diagrams
-> pip install diagrams
-
-Если не работает, нужно скачать Graphviz в папку, откуда выполняется код
-> https://graphviz.org/download/
+Результат работы:
+[https://github.com/3XTR4OS/Hackaton_TVNeuroTechonologies/blob/main/results_storage/ADMIN_aZBeEodDJivdWnwYSWPrCYoOgVCPBUYsuGR.png]
