@@ -1,67 +1,73 @@
-from diagrams import Diagram, Cluster
-from diagrams.onprem.client import User
-from diagrams.aws.network import ELB
-from diagrams.oci.connectivity import CustomerPremise
-from diagrams.oci.security import Encryption
 import random
 import string
+from diagrams import Diagram, Cluster
+from diagrams.aws.network import ELB
+from diagrams.oci.connectivity import CustomerPremises
+from diagrams.oci.security import Encryption
+from diagrams.onprem.client import User
 
 
-# Assigns a random name to the schema
-def random_name():
-    return ''.join([i for i in random.choices(string.ascii_letters, k=35)])
+class DataDiagrammer:
+    def __init__(self):
+        self.save_folder: str = 'results_storage/'
+        self.img_output_format: str = 'png'
+        # self.graph_attrs: dict = {'label': ''}  # deleting filename from output image
 
+    # Assigns a random name to the schema
+    def generate_random_name(self, symbols_count=10) -> str:
+        return ''.join([i for i in random.choices(string.ascii_letters, k=symbols_count)])
 
-def create_diagram(*args, p_direction='TB', p_outformat='png'):
-    user_role = args[0][0]
-    status = args[0][1]
-    allowed_actions = args[0][2]
-    allowed_blocks = args[0][3]
+    def create_diagram(self, data: dict, diag_direction='TB') -> None:
+        user_role: None | str = data['user_role']
+        state: None | str = data['state']
+        allowed_actions: None | list = data['allowed_actions']
+        allowed_blocks: None | list = data['allowed_blocks']
 
-    '''
-    The diagram gets a name from random characters each time.
-    show (the argument responsible for opening the created schema)
-    outformat (the argument responsible for the format in which the schema will be saved)
-    direction (the method by which the schema will be created)
-    LR (left-to-right), RL (right-to-left), TB(top-to-bottom), BT(bottom-to-bottomup)'''
-    with Diagram(f"{str(user_role) + '_' + random_name()}", show=False, direction=p_direction, outformat=p_outformat):
-        d_user = create_diag_user(user_role, status)
-        actions_balancer = ELB('Возможные действия')
-        blocks_balancer = ELB('Доступные блоки')
+        '''
+        The diagram gets a name from random characters each time.
+        show (the argument responsible for opening the created schema)
+        outformat (the argument responsible for the format in which the schema will be saved)
+        direction (the method by which the schema will be created)
+        LR (left-to-right), RL (right-to-left), TB(top-to-bottom), BT(bottom-to-bottom up)
+        '''
 
-        with Cluster('Доступные действия'):
-            actions_group = create_diag_actions(allowed_actions)  # list of objects to create
+        with Diagram(
+                show=False,  # do not open generated image
+                direction=diag_direction,
+                outformat=self.img_output_format,
+                filename=f"{self.save_folder}{str(user_role) + '_' + self.generate_random_name()}",
+        ):
+            user: User = self.__create_user_node(user=user_role, status=state)
+            actions_balancer: ELB = ELB('Возможные действия')
+            blocks_balancer: ELB = ELB('Доступные блоки')
 
-        with Cluster('Доступные блоки'):
-            blocks_group = create_diag_allowed_blocks(allowed_blocks)  # list of objects to create
+            with Cluster('Доступные действия'):
+                actions_group: list[CustomerPremises | Encryption] = self.__create_allowed_actions_node(allowed_actions)  # objects to draw
 
-        d_user >> actions_balancer
-        d_user >> blocks_balancer
-        actions_balancer >> actions_group
-        blocks_balancer >> blocks_group
+            with Cluster('Доступные блоки'):
+                blocks_group: list[CustomerPremises | Encryption] = self.__create_allowed_blocks_node(allowed_blocks)  # objects to draw
 
+            user >> actions_balancer
+            user >> blocks_balancer
+            actions_balancer >> actions_group
+            blocks_balancer >> blocks_group
 
-def create_diag_user(user, status):
-    complete_user = User(f'Уровень пользователя: {user} \n'
-                         f'Статус: {status}')
+    def __create_user_node(self, user: str, status: str) -> User:
+        user_node = User(f'Уровень пользователя: {user} \nСтатус: {status}')
+        return user_node
 
-    return complete_user
+    def __create_allowed_actions_node(self, actions: list) -> list[CustomerPremises | Encryption]:
+        if actions:
+            actions_node = [CustomerPremises(i) for i in actions]
+        else:
+            actions_node = [Encryption('Нет')]
 
+        return actions_node
 
-def create_diag_actions(action_list):
-    if action_list == 'Пуст':
-        return [Encryption('Пуст')]
+    def __create_allowed_blocks_node(self, allowed_list: list) -> list[CustomerPremises | Encryption]:
+        if allowed_list:
+            actions_group = [CustomerPremises(i) for i in allowed_list]
+        else:
+            actions_group = [Encryption('Нет')]
 
-    else:
-        actions_group = [CustomerPremise(i) for i in action_list]
-
-    return actions_group
-
-
-def create_diag_allowed_blocks(allowed_list):
-    if allowed_list == 'Пуст':
-        return [Encryption('Пуст')]
-
-    else:
-        actions_group = [CustomerPremise(i) for i in allowed_list]
         return actions_group

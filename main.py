@@ -1,50 +1,33 @@
 import json
-import diag_creator
+import constants
+from diag_creator import DataDiagrammer
 
-file_path = 'Пример входного JSON.txt'
-
-states = {
-    'PUBLISHED': 'Опубликовать',
-    'UNPUBLISHED': 'Завершить',
-    'NEW': 'Редактировать',
-    'DELETED': 'Удалить',
-    'FINISHED': 'Завершить',
-    'ARCHIVE': 'В архив'
-}
-blocks = {
-    'DISCUSSION': 'Обсудить',
-    'LIBRARY': 'Библиотека',
-    'MANAGEMENT': 'Управление'
-}
+datafile_path = 'static/Пример входного JSON.txt'
 
 
-def params_handler(row):
-    # user_role - user rights
-    user_role = row['role']
+def params_handler(row: dict) -> dict:
+    user_role: None | str = row['role']  # user_role = user rights
+    state: None | dict = row['state']['status'] if row['state'] else None  # state - object status
+    allowed_actions: None | list = [action['name'] for action in row['allowedActions']]  # available actions
+    allowed_blocks: None | list = row['allowedBlocks']  # allowedBlocks - blocks available for display
 
-    # state - info object status
-    if row['state'] is None:
-        state = 'Пуст'
+    if allowed_blocks:  # translate to RU using constant BLOCKS: dict
+        allowed_blocks: list = [constants.BLOCKS.get(block_name) for block_name in allowed_blocks]
+
+    if state:  # translate to RU using constant STATES: dict
+        state: str = constants.STATES.get(state)
     else:
-        state = states[row['state']['status']]
+        state: str = 'Удалён'
 
-    # allowed_actions
-    if len(row['allowedActions']) == 0:
-        allowed_actions = 'Пуст'
-    else:
-        allowed_actions = [i['name'] for i in row['allowedActions']]
-
-    # allowedBlocks - blocks available for display
-    if len(row['allowedBlocks']) == 0:
-        allowed_blocks = 'Пуст'
-    else:
-        allowed_blocks = [blocks[i] for i in row['allowedBlocks']]
-
-    return user_role, state, allowed_actions, allowed_blocks
+    return {'user_role': user_role,
+            'state': state,
+            'allowed_actions': allowed_actions,
+            'allowed_blocks': allowed_blocks}
 
 
-with open(file_path, 'r+', encoding='utf-8') as file:
-    file = json.load(file)
-    
-    for row in file:
-        diag_creator.create_diagram(params_handler(row), p_outformat='png')
+if __name__ == '__main__':
+    with open(datafile_path, 'r', encoding='utf-8') as file:
+        diagrammer: DataDiagrammer = DataDiagrammer()
+        for row in json.load(file):
+            params_of_object: dict = params_handler(row)
+            diagrammer.create_diagram(data=params_of_object)
