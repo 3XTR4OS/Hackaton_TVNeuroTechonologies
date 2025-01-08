@@ -8,4 +8,4 @@
 [!] Если после установки и добавления graphviz в PATH программа отказывается работать, перезагрузите машину.
 
 Результат работы:
-[https://github.com/3XTR4OS/Hackaton_TVNeuroTechonologies/blob/main/results_storage/ADMIN_aZBeEodDJivdWnwYSWPrCYoOgVCPBUYsuGR.png]
+![screenshot](https://github.com/3XTR4OS/Hackaton_TVNeuroTechonologies/blob/main/results_storage/ADMIN_aZBeEodDJivdWnwYSWPrCYoOgVCPBUYsuGR.png)
